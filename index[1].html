@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>StockPro – Gestion de stock</title>
+<meta name="theme-color" content="#7c3aed">
+<meta name="description" content="StockPro : gestion de stock, ventes, achats et suivi des bénéfices.">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f2f5fa;--card:#fff;--tx:#17203a;--mut:#667089;--bd:#e3e8f2;--c1:#16a34a;--c2:#f97316;--c3:#7c3aed;--c4:#ea580c;--c5:#2563eb;--ok:#16a34a;--warn:#f97316;--bad:#dc2626;--hero:linear-gradient(120deg,#f97316 0%,#7c3aed 48%,#2563eb 100%);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1426;--card:#181f38;--tx:#eef1fb;--mut:#9aa5c4;--bd:#2a3354}}
+:root[data-theme="dark"]{--bg:#0f1426;--card:#181f38;--tx:#eef1fb;--mut:#9aa5c4;--bd:#2a3354}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.5 "Plus Jakarta Sans",system-ui,sans-serif}
+.wrap{max-width:1180px;margin:auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:16px;padding:12px 14px;border-radius:16px;background:var(--card);border:1px solid var(--bd);box-shadow:0 6px 20px #1e2a4610}
+h1{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+h1 span{background:var(--hero);-webkit-background-clip:text;background-clip:text;color:transparent}
+h2{margin:0 0 10px;font-size:16px;font-weight:800;color:var(--c3)}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;color:var(--mut);font:inherit;font-weight:700;padding:7px 13px;border-radius:9px;cursor:pointer}
+.seg button.on{background:linear-gradient(120deg,var(--c5),var(--c3));color:#fff;box-shadow:0 4px 12px #2563eb35}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--c3);outline-offset:2px}
+.btn{border:0;background:linear-gradient(120deg,var(--c3),var(--c5));color:#fff;font:inherit;font-weight:700;padding:9px 16px;border-radius:10px;cursor:pointer}
+.btn.alt{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+.btn.sm{padding:4px 10px;font-size:12px}.btn.red{background:var(--bad)}
+.hero{background:var(--hero);color:#fff;border-radius:18px;padding:18px 20px;margin-bottom:14px}
+.hero h2{color:#fff;font-size:15px;opacity:.9}
+.hero p{margin:0 0 6px;font-size:15px;max-width:90ch}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;border-left:6px solid var(--k);box-shadow:0 8px 24px #1e2a4610;transition:transform .18s,box-shadow .18s}.kpi:hover{transform:translateY(-3px);box-shadow:0 12px 28px #1e2a4620}
+.kpi small{color:var(--mut);font-weight:700}.kpi b{display:block;font-size:21px;font-weight:800;margin:2px 0;color:var(--k)}.kpi i{font-style:normal;color:var(--mut);font-size:12px}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;box-shadow:0 8px 24px #1e2a4610}
+.chart{position:relative;height:250px}
+.pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px}
+.pc{background:var(--card);border:1px solid var(--bd);border-top:5px solid var(--k);border-radius:16px;padding:16px;box-shadow:0 8px 24px #1e2a4610}
+.pc h3{margin:0 0 6px;font-size:15px;display:flex;justify-content:space-between;gap:8px;align-items:center}
+.pc p{margin:6px 0;color:var(--tx)}
+.bar{height:9px;background:var(--bd);border-radius:9px;overflow:hidden;margin:8px 0}
+.bar div{height:100%;background:var(--k);border-radius:9px}
+.tag{font-size:11px;font-weight:800;padding:2px 9px;border-radius:20px;color:#fff;white-space:nowrap}
+.ok{background:var(--ok)}.low{background:var(--warn)}.out{background:var(--bad)}
+.tip{font-size:12.5px;color:var(--mut);border-top:1px dashed var(--bd);padding-top:6px;margin-top:6px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:620px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--bd)}th{color:var(--mut);font-size:12px}
+td.n,th.n{text-align:right}
+.f{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;align-items:end;margin-bottom:12px}
+label{display:block;font-size:12px;font-weight:700;color:var(--mut)}
+input,select{width:100%;padding:9px;border:1px solid var(--bd);border-radius:9px;background:var(--bg);color:var(--tx);font:inherit}
+.msg{color:var(--bad);font-weight:700;min-height:20px}
+.in{color:var(--ok);font-weight:800}.sale{color:var(--c5);font-weight:800}.loss{color:var(--bad);font-weight:800}
+.empty{color:var(--mut);padding:18px;text-align:center}
+
+.login-screen{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px;background:linear-gradient(135deg,#f97316,#7c3aed 52%,#2563eb)}
+.login-panel{width:min(420px,100%);background:#fff;color:#17203a;border-radius:24px;padding:28px;box-shadow:0 24px 80px #11182755}
+.login-logo{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,#f97316,#7c3aed,#2563eb);display:grid;place-items:center;color:white;font-size:27px;font-weight:900;margin-bottom:16px}
+.login-panel h2{color:#17203a;font-size:24px;margin:0 0 5px}.login-panel p{color:#667089;margin:0 0 20px}
+.login-panel label{color:#46516b;margin:12px 0 5px}.login-panel input{background:#f5f6fb;color:#17203a;border:1px solid #dce1ed;padding:12px}
+.login-panel .btn{width:100%;margin-top:18px;padding:12px}
+.login-error{color:#dc2626;font-weight:700;min-height:22px;margin-top:10px;font-size:13px}
+#logout{margin-left:auto}
+@media(max-width:600px){.wrap{padding:10px}header{padding:10px}h1{font-size:19px}.hero{padding:16px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+ <h1>Stock<span>Pro</span> · Gestion de stock et ventes</h1>
+ <div class="seg" id="tabs"></div><button class="btn alt" id="logout" type="button">Déconnexion</button>
+</header>
+<div id="app"></div>
+</div>
+<div class="login-screen" id="loginScreen">
+ <form class="login-panel" id="loginForm">
+  <div class="login-logo">SP</div>
+  <h2>Bienvenue sur StockPro</h2>
+  <p>Connectez-vous pour accéder à votre espace de gestion.</p>
+  <label for="loginUser">Nom d'utilisateur</label>
+  <input id="loginUser" autocomplete="username" required placeholder="Votre nom d'utilisateur">
+  <label for="loginPass">Mot de passe</label>
+  <input id="loginPass" type="password" autocomplete="current-password" required placeholder="Votre mot de passe">
+  <button class="btn" type="submit">Se connecter</button>
+  <div class="login-error" id="loginError" role="alert"></div>
+ </form>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const COL=['#0ea5a4','#f59e0b','#7c3aed','#e11d6a','#2563eb','#16a34a','#ea580c'];
+const PER={day:'aujourd’hui',week:'cette semaine',month:'ce mois',all:'depuis le début'};
+let S={products:[],moves:[]},view='dash',per='week',editId=null,msg='',confirmDemo=false,charts=[];
+const $=s=>document.querySelector(s);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const N=n=>Math.round(n).toLocaleString('fr-FR');
+const F=n=>N(n)+' F CFA';
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const ago=n=>{const d=new Date();d.setDate(d.getDate()-n);return ymd(d)};
+const uid=()=>Math.random().toString(36).slice(2,9);
+function save(){try{localStorage.setItem('stockpro',JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem('stockpro');if(r){S=JSON.parse(r);return}}catch(e){}demo()}
+function demo(){
+ const P=[['Poulets','pièce',10000,30,340,7000,3],['Œufs','plateau',2500,40,300,1800,9],['Riz 25 kg','sac',17000,15,120,14000,3],['Huile 5 L','bidon',6500,20,150,4800,4],['Sucre 50 kg','sac',28000,10,60,24500,2]];
+ S={products:[],moves:[]};let seed=7;const r=()=>(seed=(seed*9301+49297)%233280)/233280;
+ P.forEach((p,i)=>{const id='p'+i;S.products.push({id,name:p[0],unit:p[1],price:p[2],min:p[3]});
+  S.moves.push({id:uid(),date:ago(28),pid:id,type:'in',qty:p[4],price:p[5],note:'Stock de départ'});
+  for(let d=27;d>=0;d--){const q=Math.floor(r()*(p[6]+1));if(q)S.moves.push({id:uid(),date:ago(d),pid:id,type:'sale',qty:q,price:p[2],note:''})}});
+ S.moves.push({id:uid(),date:ago(10),pid:'p1',type:'in',qty:100,price:1900,note:'Réapprovisionnement'});
+ S.moves.push({id:uid(),date:ago(5),pid:'p0',type:'loss',qty:3,price:0,note:'Mortalité'});
+ save()}
+function range(p,off=0){const d=new Date();
+ if(p==='all')return off?null:['0000','9999'];
+ if(p==='day'){d.setDate(d.getDate()-off);const s=ymd(d);return[s,s]}
+ if(p==='week'){const dow=(d.getDay()+6)%7;d.setDate(d.getDate()-dow-7*off);const a=ymd(d);d.setDate(d.getDate()+6);return[a,ymd(d)]}
+ d.setMonth(d.getMonth()-off,1);const m=ymd(d).slice(0,7);return[m+'-01',m+'-31']}
+const inR=(m,r)=>r&&m.date>=r[0]&&m.date<=r[1];
+function stat(p,r){
+ const all=S.moves.filter(m=>m.pid===p.id),pm=all.filter(m=>inR(m,r));
+ const sum=(a,t,f)=>a.filter(m=>m.type===t).reduce((s,m)=>s+f(m),0);
+ const q=m=>m.qty,v=m=>m.qty*m.price;
+ const inAll=sum(all,'in',q),cost=inAll?sum(all,'in',v)/inAll:0;
+ const stock=inAll-sum(all,'sale',q)-sum(all,'loss',q);
+ const sold=sum(pm,'sale',q),rev=sum(pm,'sale',v);
+ const last30=all.filter(m=>m.type==='sale'&&m.date>=ago(30)).reduce((s,m)=>s+m.qty,0);
+ return{p,inAll,cost,stock,sold,rev,entP:sum(pm,'in',q),entV:sum(pm,'in',v),loss:sum(pm,'loss',q),
+  profit:rev-sold*cost,avg:sold?rev/sold:p.price,rate:last30/30,
+  days:last30?stock/(last30/30):Infinity,status:stock<=0?'out':stock<=p.min?'low':'ok'}}
+function all(r){return S.products.map(p=>stat(p,r))}
+function tot(a,k){return a.reduce((s,x)=>s+x[k],0)}
+function pct(a,b){return b?Math.round((a-b)/b*100):null}
+function nav(){$('#tabs').innerHTML=[['dash','Tableau de bord'],['prod','Produits'],['mov','Mouvements']].map(t=>`<button class="${view===t[0]?'on':''}" data-v="${t[0]}">${t[1]}</button>`).join('');
+ $('#tabs').onclick=e=>{const v=e.target.dataset.v;if(v){view=v;msg='';render()}}}
+function render(){charts.forEach(c=>c.destroy());charts=[];nav();$('#app').innerHTML=view==='dash'?dash():view==='prod'?prods():movs();if(view==='dash')drawCharts();wire()}
+function insight(a,pr){
+ const t=tot(a,'rev'),pt=pr?tot(all(pr),'rev'):null,c=pct(t,pt),L=PER[per];
+ const best=[...a].sort((x,y)=>y.rev-x.rev)[0],alerts=a.filter(x=>x.status!=='ok');
+ let o=[`<p>💰 ${L[0].toUpperCase()+L.slice(1)}, vous avez encaissé <b>${F(t)}</b> pour un bénéfice estimé de <b>${F(tot(a,'profit'))}</b>${c===null?'':` (${c>=0?'▲ +':'▼ '}${c} % par rapport à la période précédente)`}.</p>`];
+ if(best&&best.rev>0)o.push(`<p>🏆 Produit star : <b>${esc(best.p.name)}</b> avec ${N(best.sold)} vendus, soit ${F(best.rev)} (${Math.round(best.rev/t*100)} % du chiffre d’affaires).</p>`);
+ else o.push('<p>ℹ️ Aucune vente sur cette période. Enregistrez une vente dans l’onglet Mouvements.</p>');
+ o.push(alerts.length?`<p>⚠️ À surveiller : ${alerts.map(x=>`<b>${esc(x.p.name)}</b> (${x.stock<=0?'rupture':'reste '+N(x.stock)})`).join(', ')}. Pensez à réapprovisionner.</p>`:'<p>✅ Tous vos stocks sont au-dessus du seuil d’alerte.</p>');
+ return o.join('')}
+function dash(){
+ if(!S.products.length)return'<div class="card empty">Ajoutez d’abord vos produits dans l’onglet Produits.</div>';
+ const r=range(per),pr=range(per,1),a=all(r),val=a.reduce((s,x)=>s+Math.max(x.stock,0)*x.cost,0);
+ const k=(c,l,v,s)=>`<div class="kpi" style="--k:${c}"><small>${l}</small><b>${v}</b><i>${s}</i></div>`;
+ return `<div class="seg" style="margin-bottom:12px">${Object.entries({day:'Jour',week:'Semaine',month:'Mois',all:'Total'}).map(([k,l])=>`<button class="${per===k?'on':''}" data-p="${k}">${l}</button>`).join('')}</div>
+ <div class="hero"><h2>Analyse intelligente · ${PER[per]}</h2>${insight(a,pr)}</div>
+ <div class="kpis">
+ ${k('var(--c5)','Ventes (CA)',F(tot(a,'rev')),N(tot(a,'sold'))+' articles vendus')}
+ ${k('var(--c1)','Bénéfice estimé',F(tot(a,'profit')),'vente moins coût d’achat')}
+ ${k('var(--c2)','Entrées',N(tot(a,'entP'))+' articles','achats : '+F(tot(a,'entV')))}
+ ${k('var(--c4)','Sorties',N(tot(a,'sold')+tot(a,'loss'))+' articles',N(tot(a,'loss'))+' pertes / casse')}
+ ${k('var(--c3)','Valeur du stock',F(val),N(tot(a,'stock'))+' articles en magasin')}
+ </div>
+ <div class="grid"><div class="card"><h2>Ventes et achats ${per==='all'?'par mois':'par jour'}</h2><div class="chart"><canvas id="c1"></canvas></div></div>
+ <div class="card"><h2>Répartition du chiffre d’affaires</h2><div class="chart"><canvas id="c2"></canvas></div></div></div>
+ <h2>Détail interprété par produit</h2><div class="pcards">${a.map((x,i)=>pcard(x,i)).join('')}</div>`}
+function pcard(x,i){const p=x.p,n=esc(p.name.toUpperCase()),w=x.inAll?Math.max(0,Math.min(100,x.stock/x.inAll*100)):0;
+ let tip;if(x.status==='out')tip='🚨 Rupture de stock : réapprovisionnez immédiatement.';
+ else if(x.days<14)tip=`⏳ Au rythme actuel (≈ ${(x.rate).toFixed(1)}/jour), il reste environ ${Math.floor(x.days)} jour(s) de stock. Prévoyez ≈ ${Math.ceil(x.rate*30-x.stock)} ${esc(p.unit)} pour 30 jours.`;
+ else tip=x.rate?`👍 Stock confortable : environ ${x.days===Infinity?'∞':Math.floor(x.days)} jours au rythme actuel.`:'😴 Aucune vente sur 30 jours : produit dormant, envisagez une promotion.';
+ return `<div class="pc" style="--k:${COL[i%COL.length]}"><h3>${esc(p.name)}<span class="tag ${x.status}">${{ok:'Stock OK',low:'Stock bas',out:'Rupture'}[x.status]}</span></h3>
+ <p>Sur <b>${N(x.inAll)} ${n}</b> reçus au total, <b>${N(x.sold)}</b> ont été vendus ${PER[per]}${x.sold?` à <b>${N(x.avg)} F</b> l’unité, soit <b>${F(x.rev)}</b>`:''}. Il reste <b>${N(x.stock)} ${n}</b>.</p>
+ <div class="bar"><div style="width:${w}%"></div></div>
+ <small style="color:var(--mut)">${Math.round(w)} % du stock reçu encore disponible · seuil d’alerte : ${p.min}</small>
+ ${x.sold?`<p>Bénéfice estimé : <b>${F(x.profit)}</b> (coût moyen d’achat ${N(x.cost)} F).</p>`:''}
+ ${x.loss?`<p>Pertes sur la période : <b>${N(x.loss)}</b>.</p>`:''}<div class="tip">${tip}</div></div>`}
+function drawCharts(){
+ const r=range(per),b=[];
+ if(per==='all'){for(let i=5;i>=0;i--){const d=new Date();d.setMonth(d.getMonth()-i,1);const m=ymd(d).slice(0,7);b.push({l:m.slice(5)+'/'+m.slice(2,4),f:m+'-01',t:m+'-31'})}}
+ else if(per==='day'){for(let i=6;i>=0;i--){const s=ago(i);b.push({l:s.slice(8)+'/'+s.slice(5,7),f:s,t:s})}}
+ else{const d=new Date(r[0]+'T12:00:00'),e=r[1];for(let i=0;i<31;i++){const s=ymd(d);if(s>e)break;b.push({l:s.slice(8)+'/'+s.slice(5,7),f:s,t:s});d.setDate(d.getDate()+1)}}
+ const sum=(x,t)=>S.moves.filter(m=>m.type===t&&m.date>=x.f&&m.date<=x.t).reduce((s,m)=>s+m.qty*m.price,0);
+ const tc=getComputedStyle(document.body).color,gc='rgba(128,140,170,.25)';
+ Chart.defaults.color=tc;Chart.defaults.font.family='"Plus Jakarta Sans",system-ui,sans-serif';
+ charts.push(new Chart($('#c1'),{type:'bar',data:{labels:b.map(x=>x.l),datasets:[{label:'Ventes',data:b.map(x=>sum(x,'sale')),backgroundColor:'#2563eb',borderRadius:5},{label:'Achats (entrées)',data:b.map(x=>sum(x,'in')),backgroundColor:'#f59e0b',borderRadius:5}]},options:{maintainAspectRatio:false,scales:{y:{grid:{color:gc},ticks:{callback:v=>N(v)}},x:{grid:{display:false}}},plugins:{tooltip:{callbacks:{label:c=>c.dataset.label+' : '+F(c.parsed.y)}}}}}));
+ const a=all(r).filter(x=>x.rev>0);
+ charts.push(new Chart($('#c2'),{type:'doughnut',data:{labels:a.map(x=>x.p.name),datasets:[{data:a.map(x=>x.rev),backgroundColor:COL,borderWidth:0}]},options:{maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom'},tooltip:{callbacks:{label:c=>c.label+' : '+F(c.parsed)}}}}}))}
+function prods(){const e=S.products.find(p=>p.id===editId)||{};
+ return `<div class="card" style="margin-bottom:12px"><h2>${editId?'Modifier le produit':'Ajouter un produit'}</h2>
+ <div class="f"><div><label>Nom</label><input id="pn" value="${esc(e.name||'')}"></div><div><label>Unité (pièce, sac…)</label><input id="pu" value="${esc(e.unit||'')}"></div>
+ <div><label>Prix de vente (F CFA)</label><input id="pp" type="number" min="0" value="${e.price||''}"></div><div><label>Seuil d’alerte</label><input id="pm" type="number" min="0" value="${e.min??''}"></div>
+ ${editId?'':'<div><label>Stock initial</label><input id="pq" type="number" min="0"></div><div><label>Prix d’achat unitaire</label><input id="pc" type="number" min="0"></div>'}</div>
+ <button class="btn" id="psave">${editId?'Enregistrer':'Ajouter le produit'}</button> ${editId?'<button class="btn alt" id="pcancel">Annuler</button>':''} <span class="msg">${msg}</span></div>
+ <div class="card scroll"><table><tr><th>Produit</th><th class="n">Prix de vente</th><th class="n">Stock</th><th class="n">Valeur</th><th>Statut</th><th></th></tr>
+ ${all(['0000','9999']).map(x=>`<tr><td><b>${esc(x.p.name)}</b> <small>(${esc(x.p.unit)})</small></td><td class="n">${F(x.p.price)}</td><td class="n">${N(x.stock)}</td><td class="n">${F(Math.max(x.stock,0)*x.cost)}</td><td><span class="tag ${x.status}">${{ok:'OK',low:'Bas',out:'Rupture'}[x.status]}</span></td><td class="n"><button class="btn sm alt" data-e="${x.p.id}">Modifier</button> <button class="btn sm red" data-d="${x.p.id}">Suppr.</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">Aucun produit.</td></tr>'}</table></div>
+ <p><button class="btn alt" id="demo">${confirmDemo?'Confirmer : remplacer mes données par la démo':'Charger les données de démonstration'}</button></p>`}
+function movs(){const pn=id=>(S.products.find(p=>p.id===id)||{name:'(supprimé)'}).name;
+ return `<div class="card" style="margin-bottom:12px"><h2>Enregistrer un mouvement</h2>
+ <div class="f"><div><label>Date</label><input id="md" type="date" value="${ymd(new Date())}"></div>
+ <div><label>Produit</label><select id="mp">${S.products.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('')}</select></div>
+ <div><label>Type</label><select id="mt"><option value="sale">Vente (sortie)</option><option value="in">Entrée (achat)</option><option value="loss">Perte / casse (sortie)</option></select></div>
+ <div><label>Quantité</label><input id="mq" type="number" min="1"></div><div><label>Prix unitaire (F CFA)</label><input id="mc" type="number" min="0"></div>
+ <div><label>Note</label><input id="mn"></div></div>
+ <button class="btn" id="msave">Enregistrer</button> <span class="msg">${msg}</span></div>
+ <div class="card scroll"><h2>Historique</h2><table><tr><th>Date</th><th>Produit</th><th>Type</th><th class="n">Qté</th><th class="n">Prix unit.</th><th class="n">Total</th><th>Note</th><th></th></tr>
+ ${[...S.moves].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,80).map(m=>`<tr><td>${m.date.split('-').reverse().join('/')}</td><td>${esc(pn(m.pid))}</td><td class="${m.type}">${{in:'Entrée',sale:'Vente',loss:'Perte'}[m.type]}</td><td class="n">${N(m.qty)}</td><td class="n">${N(m.price)}</td><td class="n">${N(m.qty*m.price)}</td><td>${esc(m.note||'')}</td><td><button class="btn sm red" data-x="${m.id}">✕</button></td></tr>`).join('')||'<tr><td colspan="8" class="empty">Aucun mouvement enregistré.</td></tr>'}</table></div>`}
+function fillPrice(){const p=S.products.find(x=>x.id===$('#mp').value);if(!p)return;const t=$('#mt').value;
+ $('#mc').value=t==='sale'?p.price:t==='in'?Math.round(stat(p,null).cost)||'':0}
+function wire(){
+ document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{per=b.dataset.p;render()});
+ if(view==='prod'){
+  $('#psave').onclick=()=>{const n=$('#pn').value.trim(),pr=+$('#pp').value;
+   if(!n||!pr){msg='Renseignez le nom et le prix de vente.';return render()}
+   if(editId){Object.assign(S.products.find(p=>p.id===editId),{name:n,unit:$('#pu').value||'pièce',price:pr,min:+$('#pm').value||0});editId=null}
+   else{const id=uid();S.products.push({id,name:n,unit:$('#pu').value||'pièce',price:pr,min:+$('#pm').value||0});
+    if(+$('#pq').value>0)S.moves.push({id:uid(),date:ymd(new Date()),pid:id,type:'in',qty:+$('#pq').value,price:+$('#pc').value||0,note:'Stock initial'})}
+   msg='';save();render()};
+  if($('#pcancel'))$('#pcancel').onclick=()=>{editId=null;render()};
+  document.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{editId=b.dataset.e;render()});
+  document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(b.dataset.ok){S.products=S.products.filter(p=>p.id!==b.dataset.d);S.moves=S.moves.filter(m=>m.pid!==b.dataset.d);save();render()}else{b.dataset.ok=1;b.textContent='Sûr ?'}});
+  $('#demo').onclick=()=>{if(confirmDemo){demo();confirmDemo=false}else confirmDemo=true;render()}}
+ if(view==='mov'&&S.products.length){fillPrice();$('#mp').onchange=fillPrice;$('#mt').onchange=fillPrice;
+  $('#msave').onclick=()=>{const pid=$('#mp').value,t=$('#mt').value,q=+$('#mq').value,p=S.products.find(x=>x.id===pid);
+   if(!q||q<1){msg='Indiquez une quantité valide.';return render()}
+   if(t!=='in'&&q>stat(p,null).stock){msg='Stock insuffisant : il ne reste que '+N(stat(p,null).stock)+' '+p.name+'.';return render()}
+   S.moves.push({id:uid(),date:$('#md').value||ymd(new Date()),pid,type:t,qty:q,price:+$('#mc').value||0,note:$('#mn').value});msg='';save();render()};
+  document.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{S.moves=S.moves.filter(m=>m.id!==b.dataset.x);save();render()})}}
+
+const LOGIN_USER='KOUAKOUDIABO';
+const LOGIN_HASH='bf82ddd80dea720f117dbf611e6558bda12bed368588fc99c55e7e48e51aa401';
+function sha256Fallback(ascii){
+ const math=Math, words=[], K=[], isPrime=n=>{for(let j=2;j*j<=n;j++)if(n%j===0)return false;return n>1};
+ for(let n=2,c=0;c<64;n++)if(isPrime(n)){let x=Math.sqrt(n)%1;K[c++]=math.floor(x*4294967296)>>>0}
+ let msg=unescape(encodeURIComponent(ascii)), bitLen=msg.length*8;
+ msg+='\x80';while(msg.length%64!==56)msg+='\x00';
+ for(let i=7;i>=0;i--)msg+=String.fromCharCode(Math.floor(bitLen/Math.pow(2,i*8))&255);
+ let H=[0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19];
+ const rotr=(x,n)=>(x>>>n)|(x<<(32-n));
+ for(let off=0;off<msg.length;off+=64){
+  let W=[];
+  for(let i=0;i<16;i++){let j=off+i*4;W[i]=((msg.charCodeAt(j)<<24)|(msg.charCodeAt(j+1)<<16)|(msg.charCodeAt(j+2)<<8)|msg.charCodeAt(j+3))>>>0}
+  for(let i=16;i<64;i++){let a=W[i-15],b=W[i-2],s0=rotr(a,7)^rotr(a,18)^(a>>>3),s1=rotr(b,17)^rotr(b,19)^(b>>>10);W[i]=(W[i-16]+s0+W[i-7]+s1)>>>0}
+  let [a,b,c,d,e,f,g,h]=H;
+  for(let i=0;i<64;i++){let S1=rotr(e,6)^rotr(e,11)^rotr(e,25),ch=(e&f)^(~e&g),t1=(h+S1+ch+K[i]+W[i])>>>0,S0=rotr(a,2)^rotr(a,13)^rotr(a,22),maj=(a&b)^(a&c)^(b&c),t2=(S0+maj)>>>0;h=g;g=f;f=e;e=(d+t1)>>>0;d=c;c=b;b=a;a=(t1+t2)>>>0}
+  H=H.map((v,i)=>(v+[a,b,c,d,e,f,g,h][i])>>>0)
+ }
+ return H.map(x=>x.toString(16).padStart(8,'0')).join('');
+}
+async function checkLogin(user,pass){
+ let hash='';
+ try{
+  if(window.crypto && crypto.subtle && window.isSecureContext){
+   const bytes=new TextEncoder().encode(pass);
+   hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes))).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }else hash=sha256Fallback(pass);
+ }catch(err){hash=sha256Fallback(pass)}
+ return user===LOGIN_USER && hash===LOGIN_HASH;
+}
+function startApp(){
+ $('#loginScreen').remove();
+ load();render();
+ const out=$('#logout');if(out)out.onclick=()=>{sessionStorage.removeItem('stockpro_auth');location.reload()};
+}
+$('#loginForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const user=$('#loginUser').value.trim(),pass=$('#loginPass').value;
+ try{
+  if(await checkLogin(user,pass)){sessionStorage.setItem('stockpro_auth','1');startApp()}
+  else{$('#loginError').textContent='Identifiants incorrects. Vérifiez le nom et le mot de passe.';$('#loginPass').value=''}
+ }catch(err){console.error('Erreur de connexion StockPro:',err);$('#loginError').textContent='Erreur technique. Rechargez la page puis réessayez.';}
+});
+if(sessionStorage.getItem('stockpro_auth')==='1')startApp();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./service-worker.js').catch(err=>console.warn('Service worker:',err)))}
+
+</script>
+</body>
+</html>

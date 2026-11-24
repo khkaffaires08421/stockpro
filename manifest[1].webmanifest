@@ -1,0 +1,26 @@
+{
+  "name": "StockPro – Gestion de stock et ventes",
+  "short_name": "StockPro",
+  "description": "Application de gestion de stock, ventes, achats et bénéfices.",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#f2f5fa",
+  "theme_color": "#7c3aed",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
